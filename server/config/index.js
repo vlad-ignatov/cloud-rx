@@ -124,8 +124,8 @@ module.exports = {
     },
     app: {
         root: rootPath,
-        host: 'localhost',
-        port: 3000,
+        host: process.env.HOST || 'localhost',
+        port: process.env.PORT || 3000,
         knex: dbSettings[ENV] || dbSettings.production,
         dbSettings: dbSettings,
         maxUploadSize: MAX_UPLOAD_SIZE,
