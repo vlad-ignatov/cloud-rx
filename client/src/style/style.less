@@ -1,0 +1,91 @@
+// react-datagrid customizations ------------------------------------------------
+.react-datagrid {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+
+    .z-column-header .z-column-resize {
+        cursor: col-resize;
+    }
+    .z-header .z-column-header.z-cell.z-last {
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .z-header .z-column-header.z-cell:not(.z-first) {
+        border-left: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .z-header-wrapper {
+        border-bottom-color: rgba(0, 0, 0, 0.1);
+    }
+    .loadmask {
+        background: rgba(255, 255, 255, 0.5) !important;
+    }
+}
+
+// file input customizations ----------------------------------------------------
+input[type="file"] {
+    height: auto;
+    font-size: initial;
+    line-height: normal;
+    padding: 3px 12px 3px 3px;
+    &:focus {
+        outline: none;
+    }
+}
+::-webkit-file-upload-button {
+    vertical-align: top;
+    line-height: inherit;
+    -webkit-appearance: none;
+    display: block;
+    border: none;
+    border-radius: 2px;
+    background: #EEE;
+    text-shadow: 0 1px 0 #FFF;
+    padding: 0.25ex 1ex;
+    background-image: linear-gradient(#EEE, #DDD);
+    box-shadow: 0 0 1px 0 #FFF inset, 0 0 0 1px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+// .meds-calendar ----------------------------------------------------------------
+.meds-calendar {
+    table {
+        table-layout: fixed;
+        border-collapse: collapse;
+        min-height: 300px;
+        width: 100%;
+    }
+
+    .day-num {
+        font-weight: 300;
+        float: right;
+        width: 1.6em;
+        height: 1.6em;
+        text-align: center;
+        line-height: 1.6em;
+        margin: -3px -7px 0 0;
+    }
+
+    th {
+        padding: 2px 8px;
+    }
+
+    td {
+        border: 1px solid #DDD;
+        padding: 4px 8px;
+        vertical-align: top;
+
+        &.weekday-0,
+        &.weekday-6 {
+            background: #F6F6F6;
+            color: #888;
+        }
+
+        &.today {
+            .day-num {
+                background: #DC3700;
+                border-radius: 50%;
+                color: #FFF;
+                font-weight: 400;
+            }
+        }
+    }
+}
