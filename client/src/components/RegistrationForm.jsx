@@ -42,7 +42,8 @@ export default class RegistrationForm extends Component
                 <div className="page-header">
                     <div className="row">
                         <h2 className="col-xs-12 col-sm-8 col-sm-offset-4">
-                            Register at CloudRX
+                            <i className="glyphicon glyphicon-user text-muted"/>
+                            <span> Register at CloudRX</span>
                         </h2>
                     </div>
                 </div>
@@ -52,6 +53,7 @@ export default class RegistrationForm extends Component
                     <div className="alert alert-danger">
                         <button type="button" className="close" data-dismiss="alert"
                             aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <i className="glyphicon glyphicon-minus-sign">&nbsp;</i>
                         { this.state.validationError }
                     </div>
                 ) : ''}
@@ -61,9 +63,8 @@ export default class RegistrationForm extends Component
                     <label className="col-xs-12 col-sm-4 control-label">Full Name</label>
                     <div className="col-xs-12 col-sm-8 col-md-6">
                         <input className="form-control" type="text" name="fullname" ref="name"/>
-                        <span className="help-block text-muted">
-                            A block of help text that breaks onto a new line and may extend beyond one line.
-                            A block of help text that breaks onto a new line and may extend beyond one line.
+                        <span className="help-block text-muted small">
+                            Your full name as it will appear on the website.
                         </span>
                     </div>
                 </div>
@@ -73,9 +74,9 @@ export default class RegistrationForm extends Component
                     <label className="col-xs-12 col-sm-4 control-label">E-mail</label>
                     <div className="col-xs-12 col-sm-8 col-md-6">
                         <input className="form-control" type="email" name="email" ref="email"/>
-                        <span className="help-block text-muted">
-                            A block of help text that breaks onto a new line and may extend beyond one line.
-                            A block of help text that breaks onto a new line and may extend beyond one line.
+                        <span className="help-block text-muted small">
+                            Valid email address is required here. You cannot register
+                            with one email multiple times.
                         </span>
                     </div>
                 </div>
@@ -85,9 +86,9 @@ export default class RegistrationForm extends Component
                     <label className="col-xs-12 col-sm-4 control-label">Username</label>
                     <div className="col-xs-12 col-sm-8 col-md-6">
                         <input className="form-control" type="text" name="username" ref="username" autoComplete={ false }/>
-                        <span className="help-block text-muted">
-                            A block of help text that breaks onto a new line and may extend beyond one line.
-                            A block of help text that breaks onto a new line and may extend beyond one line.
+                        <span className="help-block text-muted small">
+                            Choose an unique username (we will check if it is unique)
+                            that is not longer than 20 characters.
                         </span>
                     </div>
                 </div>
@@ -97,9 +98,9 @@ export default class RegistrationForm extends Component
                     <label className="col-xs-12 col-sm-4 control-label">Password</label>
                     <div className="col-xs-12 col-sm-8 col-md-6">
                         <input className="form-control" type="password" name="password" ref="password" autoComplete={ false }/>
-                        <span className="help-block text-muted">
-                            A block of help text that breaks onto a new line and may extend beyond one line.
-                            A block of help text that breaks onto a new line and may extend beyond one line.
+                        <span className="help-block text-muted small">
+                            Please choose a good password that contains more than
+                            just letters.
                         </span>
                     </div>
                 </div>
@@ -109,9 +110,8 @@ export default class RegistrationForm extends Component
                     <label className="col-xs-12 col-sm-4 control-label">Repeat Password</label>
                     <div className="col-xs-12 col-sm-8 col-md-6">
                         <input className="form-control" type="password" name="password2" ref="password2" autoComplete={ false }/>
-                        <span className="help-block text-muted">
-                            A block of help text that breaks onto a new line and may extend beyond one line.
-                            A block of help text that breaks onto a new line and may extend beyond one line.
+                        <span className="help-block text-muted small">
+                            Please retype the password above.
                         </span>
                     </div>
                 </div>
