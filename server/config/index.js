@@ -39,7 +39,7 @@ var dbSettings = {
         }
     },
     development: {
-        debug : true,
+        debug : false,
         client: 'mysql',
         connection: {
             host     : 'localhost',

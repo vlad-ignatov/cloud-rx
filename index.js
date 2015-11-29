@@ -38,13 +38,6 @@ server.auth.scheme('session', function(server, options) {
             else {
                 reply(Boom.unauthorized(null, 'Custom'))
             }
-            // console.log(request.state)
-            // const authorization = request.raw.req.headers.authorization
-            // if (!authorization) {
-            //     return reply(Boom.unauthorized(null, 'Custom'));
-            // }
-            //
-            // return reply.continue({ credentials: { user: 'john' } });
         }
     }
 })

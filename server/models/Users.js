@@ -18,14 +18,6 @@ exports.Model = Base.Model.extend({
     }
 }, {
     register(data) {
-        /*
-        table.string('name', 100).notNullable().comment('full name');
-        table.string('email', 100).notNullable().unique();
-        table.string('username', 20).notNullable().unique();
-        table.string('password', 255).notNullable();
-        table.enu('role', ['user','manager','admin']).notNullable().defaultTo('user');
-        table.string('sid', 255).nullable().defaultTo(null);
-        */
         var pass2 = data.password2
 
         data = Joi.validate(
