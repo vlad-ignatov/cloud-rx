@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import authActions   from '../actions/auth-actions'
+import authStore     from '../stores/auth-store'
 
 const { Link } = ReactRouter
 
@@ -7,7 +8,21 @@ export default class LoginForm extends Component
 {
     constructor(props) {
         super(props)
+        this.state = authStore.getState()
         this.onSubmit = this.onSubmit.bind(this)
+        this.onAuthChange = this.onAuthChange.bind(this)
+    }
+
+    componentDidMount() {
+        authStore.listen(this.onAuthChange);
+    }
+
+    componentWillUnmount() {
+        authStore.unlisten(this.onAuthChange);
+    }
+
+    onAuthChange() {
+        this.setState(authStore.getState())
     }
 
     onSubmit(e) {
@@ -23,11 +38,21 @@ export default class LoginForm extends Component
             <div>
                 <p className="text-warning big text-center">
                     <i className="glyphicon glyphicon-info-sign">&nbsp;</i>
-                    <span>This is just a demo prototype so feel free to </span>
-                    <Link to="/register">register</Link> and you will
-                    <span>immediately be able login and create meds, upload images etc.</span>
+                    <span>This is just a demo prototype (proof of concept) so feel free to </span>
+                    <Link to="/register">register</Link><span> and you will
+                    immediately be able to login and create meds, upload images etc.</span>
                 </p>
-                <div className="col-sm-4 col-sm-offset-4 col-xs-6 col-xs-offset-3" style={{ marginTop: 40 }}>
+                { this.state.validationError ? (
+                    <div className="alert alert-danger" ref="alert" style={{ maxWidth: 400, margin: '20px auto' }}>
+                        <button type="button"
+                            className="close"
+                            onClick={ authActions.clearValidationError }
+                            aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <i className="glyphicon glyphicon-minus-sign">&nbsp;</i>
+                        { this.state.validationError }
+                    </div>
+                ) : ''}
+                <div style={{ maxWidth: 400, margin: '20px auto' }}>
                     <div className="panel panel-default">
                         <form className="panel-body" onSubmit={ this.onSubmit }>
                             <div className="form-group">
@@ -40,7 +65,9 @@ export default class LoginForm extends Component
                             </div>
                             <hr/>
                             <div className="form-group text-center">
-                                <button type="submit" className="btn btn-block btn-primary">Sign in</button>
+                                <button type="submit" className="btn btn-block btn-primary">
+                                    { this.state.loading ? 'Checking...' : 'Sign in' }
+                                </button>
                             </div>
                         </form>
                         <div className="panel-footer text-center">

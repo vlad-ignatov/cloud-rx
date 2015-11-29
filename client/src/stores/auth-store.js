@@ -10,7 +10,8 @@ class AuthStore
         this.bindListeners({
             onLogin   : authActions.LOGIN,
             onLogout  : authActions.LOGOUT,
-            onRegister: authActions.REGISTER
+            onRegister: authActions.REGISTER,
+            onClearValidationError : authActions.CLEAR_VALIDATION_ERROR
         });
     }
 
@@ -25,12 +26,15 @@ class AuthStore
             user => {
                 this.setState({ validationError: null, loading: false })
                 // location.hash = '/login'
-                setTimeout(() => location.hash = '/login', 100)
+                setTimeout(() => {
+                    alert('Your registration was successful')
+                    location.hash = '/login'
+                }, 100)
             },
             xhr => {
                 console.error(xhr);
                 this.setState({
-                    validationError: xhr.responseJSON.message || xhr.responseJSON.error,
+                    validationError: xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error',
                     loading: false
                 })
             }
@@ -54,13 +58,20 @@ class AuthStore
                 contentType: 'application/json; charset=utf-8'
             }).then(
                 data => {
-                    this.setState({ currentUser: data, loading: false })
+                    this.setState({
+                        currentUser: data,
+                        loading: false,
+                        validationError: null
+                    })
                     sessionStorage.currentUser = JSON.stringify(data)
                     setTimeout(() => location.hash = '/', 100)
                 },
-                err  => {
-                    console.error(err);
-                    this.setState({ currentUser: null, loading: false })
+                xhr  => {
+                    this.setState({
+                        currentUser: null,
+                        loading: false,
+                        validationError : xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error'
+                    })
                 }
             );
         }
@@ -82,6 +93,10 @@ class AuthStore
                 this.setState({ currentUser: null, loading: false })
             }
         );
+    }
+
+    onClearValidationError() {
+        this.setState({ validationError: null })
     }
 }
 

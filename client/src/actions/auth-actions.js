@@ -9,7 +9,8 @@ class AuthActions
             'updateProfile',
             'changePassword',
             'deleteProfile',
-            'register'
+            'register',
+            'clearValidationError'
         );
     }
 }

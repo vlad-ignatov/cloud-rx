@@ -18576,7 +18576,8 @@
 	        this.bindListeners({
 	            onLogin: _actionsAuthActions2['default'].LOGIN,
 	            onLogout: _actionsAuthActions2['default'].LOGOUT,
-	            onRegister: _actionsAuthActions2['default'].REGISTER
+	            onRegister: _actionsAuthActions2['default'].REGISTER,
+	            onClearValidationError: _actionsAuthActions2['default'].CLEAR_VALIDATION_ERROR
 	        });
 	    }
 
@@ -18595,12 +18596,13 @@
 	                _this.setState({ validationError: null, loading: false });
 	                // location.hash = '/login'
 	                setTimeout(function () {
-	                    return location.hash = '/login';
+	                    alert('Your registration was successful');
+	                    location.hash = '/login';
 	                }, 100);
 	            }, function (xhr) {
 	                console.error(xhr);
 	                _this.setState({
-	                    validationError: xhr.responseJSON.message || xhr.responseJSON.error,
+	                    validationError: xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error',
 	                    loading: false
 	                });
 	            });
@@ -18625,14 +18627,21 @@
 	                    }),
 	                    contentType: 'application/json; charset=utf-8'
 	                }).then(function (data) {
-	                    _this2.setState({ currentUser: data, loading: false });
+	                    _this2.setState({
+	                        currentUser: data,
+	                        loading: false,
+	                        validationError: null
+	                    });
 	                    sessionStorage.currentUser = JSON.stringify(data);
 	                    setTimeout(function () {
 	                        return location.hash = '/';
 	                    }, 100);
-	                }, function (err) {
-	                    console.error(err);
-	                    _this2.setState({ currentUser: null, loading: false });
+	                }, function (xhr) {
+	                    _this2.setState({
+	                        currentUser: null,
+	                        loading: false,
+	                        validationError: xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error'
+	                    });
 	                });
 	            }
 	        }
@@ -18655,6 +18664,11 @@
 	                console.error(xhr.responseJSON.message || xhr.responseJSON.error);
 	                _this3.setState({ currentUser: null, loading: false });
 	            });
+	        }
+	    }, {
+	        key: 'onClearValidationError',
+	        value: function onClearValidationError() {
+	            this.setState({ validationError: null });
 	        }
 	    }]);
 
@@ -18686,7 +18700,7 @@
 	var AuthActions = function AuthActions() {
 	    _classCallCheck(this, AuthActions);
 
-	    this.generateActions('login', 'logout', 'updateProfile', 'changePassword', 'deleteProfile', 'register');
+	    this.generateActions('login', 'logout', 'updateProfile', 'changePassword', 'deleteProfile', 'register', 'clearValidationError');
 	};
 
 	var authActions = _alt2['default'].createActions(AuthActions);
@@ -18719,6 +18733,10 @@
 
 	var _actionsAuthActions2 = _interopRequireDefault(_actionsAuthActions);
 
+	var _storesAuthStore = __webpack_require__(182);
+
+	var _storesAuthStore2 = _interopRequireDefault(_storesAuthStore);
+
 	var _ReactRouter = ReactRouter;
 	var Link = _ReactRouter.Link;
 
@@ -18729,10 +18747,27 @@
 	        _classCallCheck(this, LoginForm);
 
 	        _get(Object.getPrototypeOf(LoginForm.prototype), 'constructor', this).call(this, props);
+	        this.state = _storesAuthStore2['default'].getState();
 	        this.onSubmit = this.onSubmit.bind(this);
+	        this.onAuthChange = this.onAuthChange.bind(this);
 	    }
 
 	    _createClass(LoginForm, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            _storesAuthStore2['default'].listen(this.onAuthChange);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            _storesAuthStore2['default'].unlisten(this.onAuthChange);
+	        }
+	    }, {
+	        key: 'onAuthChange',
+	        value: function onAuthChange() {
+	            this.setState(_storesAuthStore2['default'].getState());
+	        }
+	    }, {
 	        key: 'onSubmit',
 	        value: function onSubmit(e) {
 	            e.preventDefault();
@@ -18758,23 +18793,44 @@
 	                    React.createElement(
 	                        'span',
 	                        null,
-	                        'This is just a demo prototype so feel free to '
+	                        'This is just a demo prototype (proof of concept) so feel free to '
 	                    ),
 	                    React.createElement(
 	                        Link,
 	                        { to: '/register' },
 	                        'register'
 	                    ),
-	                    ' and you will',
 	                    React.createElement(
 	                        'span',
 	                        null,
-	                        'immediately be able login and create meds, upload images etc.'
+	                        ' and you will immediately be able to login and create meds, upload images etc.'
 	                    )
 	                ),
+	                this.state.validationError ? React.createElement(
+	                    'div',
+	                    { className: 'alert alert-danger', ref: 'alert', style: { maxWidth: 400, margin: '20px auto' } },
+	                    React.createElement(
+	                        'button',
+	                        { type: 'button',
+	                            className: 'close',
+	                            onClick: _actionsAuthActions2['default'].clearValidationError,
+	                            'aria-label': 'Close' },
+	                        React.createElement(
+	                            'span',
+	                            { 'aria-hidden': 'true' },
+	                            '×'
+	                        )
+	                    ),
+	                    React.createElement(
+	                        'i',
+	                        { className: 'glyphicon glyphicon-minus-sign' },
+	                        ' '
+	                    ),
+	                    this.state.validationError
+	                ) : '',
 	                React.createElement(
 	                    'div',
-	                    { className: 'col-sm-4 col-sm-offset-4 col-xs-6 col-xs-offset-3', style: { marginTop: 40 } },
+	                    { style: { maxWidth: 400, margin: '20px auto' } },
 	                    React.createElement(
 	                        'div',
 	                        { className: 'panel panel-default' },
@@ -18808,7 +18864,7 @@
 	                                React.createElement(
 	                                    'button',
 	                                    { type: 'submit', className: 'btn btn-block btn-primary' },
-	                                    'Sign in'
+	                                    this.state.loading ? 'Checking...' : 'Sign in'
 	                                )
 	                            )
 	                        ),
@@ -18893,6 +18949,18 @@
 	        key: 'onAuthChange',
 	        value: function onAuthChange() {
 	            this.setState(_storesAuthStore2['default'].getState());
+	            if (this.state.validationError && this.refs.alert) {
+	                // this.refs.alert.scrollIntoView()
+
+	                var currentScroll = $('body').scrollTop(),
+	                    targetScroll = $(this.refs.alert).offset().top - parseFloat($('body').css('paddingTop'));
+
+	                if (currentScroll > targetScroll) {
+	                    $('body').animate({
+	                        scrollTop: targetScroll
+	                    }, 200);
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'onSubmit',
@@ -18933,10 +19001,12 @@
 	                ),
 	                this.state.validationError ? React.createElement(
 	                    'div',
-	                    { className: 'alert alert-danger' },
+	                    { className: 'alert alert-danger', ref: 'alert' },
 	                    React.createElement(
 	                        'button',
-	                        { type: 'button', className: 'close', 'data-dismiss': 'alert',
+	                        { type: 'button',
+	                            className: 'close',
+	                            onClick: _actionsAuthActions2['default'].clearValidationError,
 	                            'aria-label': 'Close' },
 	                        React.createElement(
 	                            'span',
@@ -19056,7 +19126,7 @@
 	                        React.createElement(
 	                            'button',
 	                            { type: 'submit', className: 'btn btn-block btn-success' },
-	                            'Register'
+	                            this.state.loading ? 'Loading...' : 'Register'
 	                        )
 	                    )
 	                )

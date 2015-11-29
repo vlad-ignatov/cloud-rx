@@ -21,6 +21,19 @@ export default class RegistrationForm extends Component
 
     onAuthChange() {
         this.setState(authStore.getState())
+        if (this.state.validationError && this.refs.alert) {
+            // this.refs.alert.scrollIntoView()
+
+            let currentScroll = $('body').scrollTop(),
+                targetScroll  = $(this.refs.alert).offset().top -
+                    parseFloat($('body').css('paddingTop'));
+
+            if (currentScroll > targetScroll) {
+                $('body').animate({
+                    scrollTop: targetScroll
+                }, 200);
+            }
+        }
     }
 
     onSubmit(e) {
@@ -50,8 +63,10 @@ export default class RegistrationForm extends Component
 
                 {/* validation error ---------------------------------------- */}
                 { this.state.validationError ? (
-                    <div className="alert alert-danger">
-                        <button type="button" className="close" data-dismiss="alert"
+                    <div className="alert alert-danger" ref="alert">
+                        <button type="button"
+                            className="close"
+                            onClick={ authActions.clearValidationError }
                             aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <i className="glyphicon glyphicon-minus-sign">&nbsp;</i>
                         { this.state.validationError }
@@ -121,7 +136,9 @@ export default class RegistrationForm extends Component
                 {/* ---------------- Submit ------------------------- */}
                 <div className="form-group">
                     <div className="col-xs-8 col-sm-4 col-md-3 col-sm-offset-4 col-xs-offset-2">
-                        <button type="submit" className="btn btn-block btn-success">Register</button>
+                        <button type="submit" className="btn btn-block btn-success">
+                            { this.state.loading ? 'Loading...' : 'Register' }
+                        </button>
                     </div>
                 </div>
             </form>
