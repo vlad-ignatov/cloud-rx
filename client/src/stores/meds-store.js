@@ -29,7 +29,9 @@ class MedStore
             onSort   : medActions.SORT,
             onLoad   : medActions.LOAD,
             onSelect : medActions.SELECT,
-            onDestroy: medActions.DESTROY
+            onDestroy: medActions.DESTROY,
+            onCreate : medActions.CREATE,
+            onUpdate : medActions.UPDATE
         })
     }
 
@@ -51,7 +53,7 @@ class MedStore
             }
         )
     }
-    
+
     onDestroy({ id, onSuccess }) {
         this.setState({ isLoading: true })
         $.ajax({
@@ -88,6 +90,68 @@ class MedStore
             sortInfo : sortInfo,
             meds     : sorty(sortInfo, [].concat(__meds__))
         })
+    }
+
+    onCreate({ formData, onSuccess, onError }) {
+        this.setState({ isLoading: true })
+        $.ajax({
+            url        : '/api/meds/',
+            method     : 'POST',
+            data       : formData,
+            contentType: false,
+            processData: false
+        }).then(
+            med => {
+                __meds__.push(med);
+                this.setState({
+                    meds : sorty(this.sortInfo, [].concat(__meds__)),
+                    isLoading: false
+                })
+                if (typeof onSuccess == 'function') {
+                    onSuccess(med)
+                }
+            },
+            xhr => {
+                this.setState({
+                    isLoading: false
+                })
+                if (typeof onError == 'function') {
+                    onError(xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error')
+                }
+            }
+        )
+    }
+
+    onUpdate({ medID, formData, onSuccess, onError }) {
+        this.setState({ isLoading: true })
+        $.ajax({
+            url        : '/api/meds/' + medID,
+            method     : 'PUT',
+            data       : formData,
+            contentType: false,
+            processData: false
+        }).then(
+            med => {
+                let m1 = __meds__.find(m => m.id === med.id)
+                let m2 = this.meds.find(m => m.id === med.id)
+
+                if (m1 && m2) {
+                    $.extend(m1, med)
+                    $.extend(m2, med)
+                }
+
+                this.setState({ isLoading: false })
+                if (typeof onSuccess == 'function') {
+                    onSuccess(med)
+                }
+            },
+            xhr => {
+                this.setState({ isLoading: false })
+                if (typeof onError == 'function') {
+                    onError(xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error')
+                }
+            }
+        )
     }
 }
 

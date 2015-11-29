@@ -15966,7 +15966,9 @@
 	            onSort: _actionsMedActions2['default'].SORT,
 	            onLoad: _actionsMedActions2['default'].LOAD,
 	            onSelect: _actionsMedActions2['default'].SELECT,
-	            onDestroy: _actionsMedActions2['default'].DESTROY
+	            onDestroy: _actionsMedActions2['default'].DESTROY,
+	            onCreate: _actionsMedActions2['default'].CREATE,
+	            onUpdate: _actionsMedActions2['default'].UPDATE
 	        });
 	    }
 
@@ -16038,6 +16040,81 @@
 	            this.setState({
 	                sortInfo: sortInfo,
 	                meds: (0, _sorty2['default'])(sortInfo, [].concat(__meds__))
+	            });
+	        }
+	    }, {
+	        key: 'onCreate',
+	        value: function onCreate(_ref2) {
+	            var _this3 = this;
+
+	            var formData = _ref2.formData;
+	            var onSuccess = _ref2.onSuccess;
+	            var onError = _ref2.onError;
+
+	            this.setState({ isLoading: true });
+	            $.ajax({
+	                url: '/api/meds/',
+	                method: 'POST',
+	                data: formData,
+	                contentType: false,
+	                processData: false
+	            }).then(function (med) {
+	                __meds__.push(med);
+	                _this3.setState({
+	                    meds: (0, _sorty2['default'])(_this3.sortInfo, [].concat(__meds__)),
+	                    isLoading: false
+	                });
+	                if (typeof onSuccess == 'function') {
+	                    onSuccess(med);
+	                }
+	            }, function (xhr) {
+	                _this3.setState({
+	                    isLoading: false
+	                });
+	                if (typeof onError == 'function') {
+	                    onError(xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error');
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'onUpdate',
+	        value: function onUpdate(_ref3) {
+	            var _this4 = this;
+
+	            var medID = _ref3.medID;
+	            var formData = _ref3.formData;
+	            var onSuccess = _ref3.onSuccess;
+	            var onError = _ref3.onError;
+
+	            this.setState({ isLoading: true });
+	            $.ajax({
+	                url: '/api/meds/' + medID,
+	                method: 'PUT',
+	                data: formData,
+	                contentType: false,
+	                processData: false
+	            }).then(function (med) {
+	                var m1 = __meds__.find(function (m) {
+	                    return m.id === med.id;
+	                });
+	                var m2 = _this4.meds.find(function (m) {
+	                    return m.id === med.id;
+	                });
+
+	                if (m1 && m2) {
+	                    $.extend(m1, med);
+	                    $.extend(m2, med);
+	                }
+
+	                _this4.setState({ isLoading: false });
+	                if (typeof onSuccess == 'function') {
+	                    onSuccess(med);
+	                }
+	            }, function (xhr) {
+	                _this4.setState({ isLoading: false });
+	                if (typeof onError == 'function') {
+	                    onError(xhr.responseJSON.message || xhr.responseJSON.error || 'Unknown error');
+	                }
 	            });
 	        }
 	    }]);
@@ -17836,7 +17913,7 @@
 	    function MedActions() {
 	        _classCallCheck(this, MedActions);
 
-	        this.generateActions('load', 'sort', 'select', 'destroy');
+	        this.generateActions('load', 'sort', 'select', 'destroy', 'create', 'update');
 	    }
 
 	    _createClass(MedActions, [{
@@ -19305,25 +19382,48 @@
 	            var formData = new FormData(e.target);
 	            var isUpdate = this.state.med && this.state.med.id;
 
-	            $.ajax({
-	                url: '/api/meds/' + (isUpdate ? this.state.med.id : ''),
-	                method: isUpdate ? 'PUT' : 'POST',
-	                data: formData,
-	                contentType: false,
-	                processData: false
-	            }).then(function (med) {
-	                return _this2.setState({
-	                    med: med,
-	                    loading: 0,
-	                    error: null,
-	                    responceError: null
-	                });
-	            }, function (xhr) {
-	                return _this2.setState({
-	                    loading: 0,
-	                    responceError: xhr.responseJSON.message || xhr.responseJSON.error
-	                });
+	            this.setState({
+	                sending: true
 	            });
+
+	            if (isUpdate) {
+	                _actionsMedActions2['default'].update({
+	                    medID: this.state.med.id,
+	                    formData: formData,
+	                    onSuccess: function onSuccess(med) {
+	                        return _this2.setState({
+	                            med: med,
+	                            sending: false,
+	                            error: null,
+	                            responceError: null
+	                        });
+	                    },
+	                    onError: function onError(err) {
+	                        return _this2.setState({
+	                            sending: false,
+	                            responceError: err
+	                        });
+	                    }
+	                });
+	            } else {
+	                _actionsMedActions2['default'].create({
+	                    formData: formData,
+	                    onSuccess: function onSuccess(med) {
+	                        _this2.setState({
+	                            med: med,
+	                            sending: false,
+	                            error: null,
+	                            responceError: null
+	                        });
+	                    },
+	                    onError: function onError(err) {
+	                        _this2.setState({
+	                            sending: false,
+	                            responceError: err
+	                        });
+	                    }
+	                });
+	            }
 	        }
 	    }, {
 	        key: 'deleteMed',
@@ -19366,7 +19466,7 @@
 	                    { className: 'text-center text-muted' },
 	                    React.createElement('br', null),
 	                    React.createElement('br', null),
-	                    'No medication selected'
+	                    'No medication found'
 	                );
 	            }
 
@@ -19376,7 +19476,7 @@
 	                React.createElement(
 	                    'h2',
 	                    { className: 'page-header' },
-	                    med.name
+	                    med.id ? med.name : 'Add new medication'
 	                ),
 	                this.state.responceError ? React.createElement(
 	                    'div',
@@ -19484,8 +19584,8 @@
 	                                { className: 'col-sm-offset-3 col-sm-4 col-md-3 col-xs-6' },
 	                                React.createElement(
 	                                    'button',
-	                                    { className: 'btn btn-success btn-block', type: 'submit' },
-	                                    'Save Medication'
+	                                    { className: 'btn btn-success btn-block', type: 'submit', ref: 'submit' },
+	                                    this.state.sending ? 'Saving...' : 'Save Medication'
 	                                )
 	                            ),
 	                            React.createElement(
@@ -19602,13 +19702,54 @@
 	                React.createElement(
 	                    'label',
 	                    null,
-	                    'Medication Image'
+	                    'Set Medication Image:'
 	                ),
 	                React.createElement('input', { className: 'form-control',
 	                    type: 'file',
 	                    name: 'image',
 	                    onChange: this.onChange
-	                })
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(
+	                    'p',
+	                    { className: 'text-muted small' },
+	                    React.createElement('i', { className: 'glyphicon glyphicon-info-sign' }),
+	                    React.createElement(
+	                        'span',
+	                        null,
+	                        ' Select an image file not larger than ',
+	                        React.createElement(
+	                            'b',
+	                            null,
+	                            '2MB'
+	                        ),
+	                        '. The supported file formats are ',
+	                        React.createElement(
+	                            'code',
+	                            null,
+	                            'jpg'
+	                        ),
+	                        ', ',
+	                        React.createElement(
+	                            'code',
+	                            null,
+	                            'jpeg'
+	                        ),
+	                        ',',
+	                        React.createElement(
+	                            'code',
+	                            null,
+	                            'gif'
+	                        ),
+	                        ' and ',
+	                        React.createElement(
+	                            'code',
+	                            null,
+	                            'png'
+	                        ),
+	                        '.'
+	                    )
+	                )
 	            );
 	        }
 	    }]);
@@ -19733,7 +19874,7 @@
 	                React.createElement(_NavBar2['default'], { location: this.props.location }),
 	                React.createElement(
 	                    'div',
-	                    { className: 'container' },
+	                    { className: 'container main-container' },
 	                    this.getContents()
 	                ),
 	                React.createElement(
@@ -20117,7 +20258,7 @@
 
 
 	// module
-	exports.push([module.id, ".react-datagrid {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.react-datagrid .z-column-header .z-column-resize {\n  cursor: col-resize;\n}\n.react-datagrid .z-header .z-column-header.z-cell.z-last {\n  border-right: 1px solid rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .z-header .z-column-header.z-cell:not(.z-first) {\n  border-left: 1px solid rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .z-header-wrapper {\n  border-bottom-color: rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .loadmask {\n  background: rgba(255, 255, 255, 0.5) !important;\n}\ninput[type=\"file\"] {\n  height: auto;\n  font-size: initial;\n  line-height: normal;\n  padding: 3px 12px 3px 3px;\n}\ninput[type=\"file\"]:focus {\n  outline: none;\n}\n::-webkit-file-upload-button {\n  vertical-align: top;\n  line-height: inherit;\n  -webkit-appearance: none;\n  display: block;\n  border: none;\n  border-radius: 2px;\n  background: #EEE;\n  text-shadow: 0 1px 0 #FFF;\n  padding: 0.25ex 1ex;\n  background-image: linear-gradient(#EEE, #DDD);\n  box-shadow: 0 0 1px 0 #FFF inset, 0 0 0 1px rgba(0, 0, 0, 0.2);\n  pointer-events: none;\n}\n.meds-calendar table {\n  table-layout: fixed;\n  border-collapse: collapse;\n  min-height: 300px;\n  width: 100%;\n}\n.meds-calendar .day-num {\n  font-weight: 300;\n  float: right;\n  width: 1.6em;\n  height: 1.6em;\n  text-align: center;\n  line-height: 1.6em;\n  margin: -3px -7px 0 0;\n}\n.meds-calendar th {\n  padding: 2px 8px;\n}\n.meds-calendar td {\n  border: 1px solid #DDD;\n  padding: 4px 8px;\n  vertical-align: top;\n}\n.meds-calendar td.weekday-0,\n.meds-calendar td.weekday-6 {\n  background: #F6F6F6;\n  color: #888;\n}\n.meds-calendar td.today .day-num {\n  background: #DC3700;\n  border-radius: 50%;\n  color: #FFF;\n  font-weight: 400;\n}\n", ""]);
+	exports.push([module.id, ".react-datagrid {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.react-datagrid .z-column-header .z-column-resize {\n  cursor: col-resize;\n}\n.react-datagrid .z-header .z-column-header.z-cell.z-last {\n  border-right: 1px solid rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .z-header .z-column-header.z-cell:not(.z-first) {\n  border-left: 1px solid rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .z-header-wrapper {\n  border-bottom-color: rgba(0, 0, 0, 0.1);\n}\n.react-datagrid .loadmask {\n  background: rgba(255, 255, 255, 0.5) !important;\n}\ninput[type=\"file\"] {\n  height: auto;\n  font-size: initial;\n  line-height: normal;\n  padding: 3px 12px 3px 3px;\n}\ninput[type=\"file\"]:focus {\n  outline: none;\n}\n::-webkit-file-upload-button {\n  vertical-align: top;\n  line-height: inherit;\n  -webkit-appearance: none;\n  display: block;\n  border: none;\n  border-radius: 2px;\n  background: #EEE;\n  text-shadow: 0 1px 0 #FFF;\n  padding: 0.25ex 1ex;\n  background-image: linear-gradient(#EEE, #DDD);\n  box-shadow: 0 0 1px 0 #FFF inset, 0 0 0 1px rgba(0, 0, 0, 0.2);\n  pointer-events: none;\n}\n.meds-calendar table {\n  table-layout: fixed;\n  border-collapse: collapse;\n  min-height: 300px;\n  width: 100%;\n}\n.meds-calendar .day-num {\n  font-weight: 300;\n  float: right;\n  width: 1.6em;\n  height: 1.6em;\n  text-align: center;\n  line-height: 1.6em;\n  margin: -3px -7px 0 0;\n}\n.meds-calendar th {\n  padding: 2px 8px;\n}\n.meds-calendar td {\n  border: 1px solid #DDD;\n  padding: 4px 8px;\n  vertical-align: top;\n}\n.meds-calendar td.weekday-0,\n.meds-calendar td.weekday-6 {\n  background: #F6F6F6;\n  color: #888;\n}\n.meds-calendar td.today .day-num {\n  background: #DC3700;\n  border-radius: 50%;\n  color: #FFF;\n  font-weight: 400;\n}\n.main-container > div > .page-header:first-of-type {\n  margin-top: 0;\n}\n", ""]);
 
 	// exports
 

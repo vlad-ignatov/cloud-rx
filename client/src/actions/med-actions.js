@@ -7,7 +7,9 @@ class MedActions
             'load',
             'sort',
             'select',
-            'destroy'
+            'destroy',
+            'create',
+            'update'
         );
     }
 

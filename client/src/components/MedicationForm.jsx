@@ -66,26 +66,47 @@ export default class MedicationForm extends Component
         let formData = new FormData(e.target)
         let isUpdate = this.state.med && this.state.med.id
 
-        $.ajax({
-            url        : '/api/meds/' + (isUpdate ? this.state.med.id : ''),
-            method     : isUpdate ? 'PUT' : 'POST',
-            data       : formData,
-            contentType: false,
-            processData: false
-        }).then(
-            med => this.setState({
-                med,
-                loading: 0,
-                error: null,
-                responceError: null
-            }),
-            xhr => this.setState({
-                loading: 0,
-                responceError: xhr.responseJSON.message || xhr.responseJSON.error
+        this.setState({
+            sending: true
+        })
+
+        if (isUpdate) {
+            medActions.update({
+                medID : this.state.med.id,
+                formData,
+                onSuccess : med => this.setState({
+                    med,
+                    sending: false,
+                    error: null,
+                    responceError: null
+                }),
+                onError: err => this.setState({
+                    sending: false,
+                    responceError: err
+                })
             })
-        )
+        }
+        else {
+            medActions.create({
+                formData,
+                onSuccess: (med) => {
+                    this.setState({
+                        med,
+                        sending: false,
+                        error: null,
+                        responceError: null
+                    })
+                },
+                onError: (err) => {
+                    this.setState({
+                        sending: false,
+                        responceError: err
+                    })
+                }
+            })
+        }
     }
-    
+
     deleteMed(id) {
         if (confirm('Are you sure you want to delete this medication?')) {
             medActions.destroy({
@@ -117,14 +138,14 @@ export default class MedicationForm extends Component
                 <p className="text-center text-muted">
                     <br/>
                     <br/>
-                    No medication selected
+                    No medication found
                 </p>
             )
         }
 
         return (
             <div>
-                <h2 className="page-header">{ med.name }</h2>
+                <h2 className="page-header">{ med.id ? med.name : 'Add new medication' }</h2>
                 { this.state.responceError ? (
                     <div className="alert alert-danger">
                         { this.state.responceError }
@@ -175,8 +196,8 @@ export default class MedicationForm extends Component
                             <div className="col-sm-offset-3 col-sm-4
                                                             col-md-3
                                                             col-xs-6">
-                                <button className="btn btn-success btn-block" type="submit">
-                                    Save Medication
+                                <button className="btn btn-success btn-block" type="submit" ref="submit">
+                                    { this.state.sending ? 'Saving...' : 'Save Medication' }
                                 </button>
                             </div>
                             <div className="col-sm-offset-1 col-sm-4
