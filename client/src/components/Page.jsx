@@ -59,7 +59,7 @@ export default class Page extends Component
         return (
             <div>
                 <NavBar location={ this.props.location } />
-                <div className="container">
+                <div className="container main-container">
                     { this.getContents() }
                 </div>
                 <nav className="navbar navbar-default navbar-fixed-bottom">

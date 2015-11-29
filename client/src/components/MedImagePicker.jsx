@@ -51,12 +51,19 @@ export default class MedImagePicker extends Component
                     style={{ margin: 'auto' }}
                 />
                 <br/>
-                <label>Medication Image</label>
+                <label>Set Medication Image:</label>
                 <input className="form-control"
                     type="file"
                     name="image"
                     onChange={ this.onChange }
                 />
+                <br/>
+                <p className="text-muted small">
+                    <i className="glyphicon glyphicon-info-sign"></i>
+                    <span> Select an image file not larger than <b>2MB</b>. The supported
+                    file formats are <code>jpg</code>, <code>jpeg</code>,
+                    <code>gif</code> and <code>png</code>.</span>
+                </p>
             </div>
         )
     }
